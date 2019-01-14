@@ -1,5 +1,7 @@
 while_becomes_for: {
-    options = { loops: true };
+    options = {
+        loops: true,
+    }
     input: {
         while (foo()) bar();
     }
@@ -9,7 +11,9 @@ while_becomes_for: {
 }
 
 drop_if_break_1: {
-    options = { loops: true };
+    options = {
+        loops: true,
+    }
     input: {
         for (;;)
             if (foo()) break;
@@ -20,7 +24,9 @@ drop_if_break_1: {
 }
 
 drop_if_break_2: {
-    options = { loops: true };
+    options = {
+        loops: true,
+    }
     input: {
         for (;bar();)
             if (foo()) break;
@@ -31,7 +37,9 @@ drop_if_break_2: {
 }
 
 drop_if_break_3: {
-    options = { loops: true };
+    options = {
+        loops: true,
+    }
     input: {
         for (;bar();) {
             if (foo()) break;
@@ -48,7 +56,10 @@ drop_if_break_3: {
 }
 
 drop_if_break_4: {
-    options = { loops: true, sequences: true };
+    options = {
+        loops: true,
+        sequences: true,
+    }
     input: {
         for (;bar();) {
             x();
@@ -64,7 +75,9 @@ drop_if_break_4: {
 }
 
 drop_if_else_break_1: {
-    options = { loops: true };
+    options = {
+        loops: true,
+    }
     input: {
         for (;;) if (foo()) bar(); else break;
     }
@@ -74,7 +87,9 @@ drop_if_else_break_1: {
 }
 
 drop_if_else_break_2: {
-    options = { loops: true };
+    options = {
+        loops: true,
+    }
     input: {
         for (;bar();) {
             if (foo()) baz();
@@ -87,7 +102,9 @@ drop_if_else_break_2: {
 }
 
 drop_if_else_break_3: {
-    options = { loops: true };
+    options = {
+        loops: true,
+    }
     input: {
         for (;bar();) {
             if (foo()) baz();
@@ -106,7 +123,10 @@ drop_if_else_break_3: {
 }
 
 drop_if_else_break_4: {
-    options = { loops: true, sequences: true };
+    options = {
+        loops: true,
+        sequences: true,
+    }
     input: {
         for (;bar();) {
             x();
@@ -123,7 +143,9 @@ drop_if_else_break_4: {
 }
 
 parse_do_while_with_semicolon: {
-    options = { loops: false };
+    options = {
+        loops: false,
+    }
     input: {
         do {
             x();
@@ -135,7 +157,9 @@ parse_do_while_with_semicolon: {
 }
 
 parse_do_while_without_semicolon: {
-    options = { loops: false };
+    options = {
+        loops: false,
+    }
     input: {
         do {
             x();
@@ -146,44 +170,479 @@ parse_do_while_without_semicolon: {
     }
 }
 
-
-keep_collapse_const_in_own_block_scope: {
+evaluate: {
     options = {
-        join_vars: true,
-        loops: true
+        dead_code: true,
+        evaluate: true,
+        loops: true,
+        passes: 2,
+        side_effects: true,
     }
     input: {
-        var i=2;
-        const c=5;
-        while(i--)
-            console.log(i);
-        console.log(c);
+        while (true) {
+            a();
+        }
+        while (false) {
+            b();
+        }
+        do {
+            c();
+        } while (true);
+        do {
+            d();
+        } while (false);
     }
     expect: {
-        var i=2;
-        const c=5;
-        for(;i--;)
-            console.log(i);
-        console.log(c);
+        for(;;)
+            a();
+        for(;;)
+            c();
+        d();
     }
 }
 
-keep_collapse_const_in_own_block_scope_2: {
+issue_1532: {
     options = {
-        join_vars: true,
-        loops: true
+        evaluate: true,
+        loops: true,
     }
     input: {
-        const c=5;
-        var i=2; // Moves to loop, while it did not in previous test
-        while(i--)
-            console.log(i);
-        console.log(c);
+        function f(x, y) {
+            do {
+                if (x) break;
+                foo();
+            } while (false);
+        }
     }
     expect: {
-        const c=5;
-        for(var i=2;i--;)
-            console.log(i);
-        console.log(c);
+        function f(x, y) {
+            do {
+                if (x) break;
+                foo();
+            } while (false);
+        }
     }
+}
+
+issue_186: {
+    beautify = {
+        beautify: false,
+        ie8: false,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: 'var x=3;if(foo())do{do{alert(x)}while(--x)}while(x);else bar();'
+}
+
+issue_186_ie8: {
+    beautify = {
+        beautify: false,
+        ie8: true,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: 'var x=3;if(foo()){do{do{alert(x)}while(--x)}while(x)}else bar();'
+}
+
+issue_186_beautify: {
+    beautify = {
+        beautify: true,
+        ie8: false,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: [
+        'var x = 3;',
+        '',
+        'if (foo()) do {',
+        '    do {',
+        '        alert(x);',
+        '    } while (--x);',
+        '} while (x); else bar();',
+    ]
+}
+
+issue_186_beautify_ie8: {
+    beautify = {
+        beautify: true,
+        ie8: true,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: [
+        'var x = 3;',
+        '',
+        'if (foo()) {',
+        '    do {',
+        '        do {',
+        '            alert(x);',
+        '        } while (--x);',
+        '    } while (x);',
+        '} else bar();',
+    ]
+}
+
+issue_186_braces: {
+    beautify = {
+        beautify: false,
+        braces: true,
+        ie8: false,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: 'var x=3;if(foo()){do{do{alert(x)}while(--x)}while(x)}else{bar()}'
+}
+
+issue_186_braces_ie8: {
+    beautify = {
+        beautify: false,
+        braces: true,
+        ie8: true,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: 'var x=3;if(foo()){do{do{alert(x)}while(--x)}while(x)}else{bar()}'
+}
+
+issue_186_beautify_braces: {
+    beautify = {
+        beautify: true,
+        braces: true,
+        ie8: false,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: [
+        'var x = 3;',
+        '',
+        'if (foo()) {',
+        '    do {',
+        '        do {',
+        '            alert(x);',
+        '        } while (--x);',
+        '    } while (x);',
+        '} else {',
+        '    bar();',
+        '}',
+    ]
+}
+
+issue_186_beautify_braces_ie8: {
+    beautify = {
+        beautify: true,
+        braces: true,
+        ie8: true,
+    }
+    input: {
+        var x = 3;
+        if (foo())
+            do
+                do
+                    alert(x);
+                while (--x);
+            while (x);
+        else
+            bar();
+    }
+    expect_exact: [
+        'var x = 3;',
+        '',
+        'if (foo()) {',
+        '    do {',
+        '        do {',
+        '            alert(x);',
+        '        } while (--x);',
+        '    } while (x);',
+        '} else {',
+        '    bar();',
+        '}',
+    ]
+}
+
+issue_1648: {
+    options = {
+        join_vars: true,
+        loops: true,
+        passes: 2,
+        sequences: true,
+        unused: true,
+    }
+    input: {
+        function f() {
+            x();
+            var b = 1;
+            while (1);
+        }
+    }
+    expect_exact: "function f(){for(x();1;);}"
+}
+
+do_switch: {
+    options = {
+        evaluate: true,
+        loops: true,
+    }
+    input: {
+        do {
+            switch (a) {
+              case b:
+                continue;
+            }
+        } while (false);
+    }
+    expect: {
+        do {
+            switch (a) {
+              case b:
+                continue;
+            }
+        } while (false);
+    }
+}
+
+in_parenthesis_1: {
+    input: {
+        for (("foo" in {});0;);
+    }
+    expect_exact: 'for(("foo"in{});0;);'
+}
+
+in_parenthesis_2: {
+    input: {
+        for ((function(){ "foo" in {}; });0;);
+    }
+    expect_exact: 'for(function(){"foo"in{}};0;);'
+}
+
+init_side_effects: {
+    options = {
+        loops: true,
+        side_effects: true,
+    }
+    input: {
+        for (function() {}(), i = 0; i < 5; i++) console.log(i);
+        for (function() {}(); i < 10; i++) console.log(i);
+    }
+    expect: {
+        for (i = 0; i < 5; i++) console.log(i);
+        for (; i < 10; i++) console.log(i);
+    }
+    expect_stdout: true
+}
+
+dead_code_condition: {
+    options = {
+        dead_code: true,
+        evaluate: true,
+        loops: true,
+        sequences: true,
+    }
+    input: {
+        for (var a = 0, b = 5; (a += 1, 3) - 3 && b > 0; b--) {
+            var c = function() {
+                b--;
+            }(a++);
+        }
+        console.log(a);
+    }
+    expect: {
+        var c;
+        var a = 0, b = 5;
+        a += 1, 0,
+        console.log(a);
+    }
+    expect_stdout: "1"
+}
+
+issue_2740_1: {
+    options = {
+        dead_code: true,
+        loops: true,
+    }
+    input: {
+        for (; ; ) break;
+        for (a(); ; ) break;
+        for (; b(); ) break;
+        for (c(); d(); ) break;
+        for (; ; e()) break;
+        for (f(); ; g()) break;
+        for (; h(); i()) break;
+        for (j(); k(); l()) break;
+    }
+    expect: {
+        a();
+        b();
+        c();
+        d();
+        f();
+        h();
+        j();
+        k();
+    }
+}
+
+issue_2740_2: {
+    options = {
+        dead_code: true,
+        loops: true,
+        passes: 2,
+    }
+    input: {
+        L1: while (x()) {
+            break L1;
+        }
+    }
+    expect: {
+        x();
+    }
+}
+
+issue_2740_3: {
+    options = {
+        dead_code: true,
+        loops: true,
+    }
+    input: {
+        L1: for (var x = 0; x < 3; x++) {
+            L2: for (var y = 0; y < 2; y++) {
+                break L1;
+            }
+        }
+        console.log(x, y);
+    }
+    expect: {
+        L1: for (var x = 0; x < 3; x++)
+            for (var y = 0; y < 2; y++)
+                break L1;
+        console.log(x, y);
+    }
+    expect_stdout: "0 0"
+}
+
+issue_2740_4: {
+    options = {
+        dead_code: true,
+        loops: true,
+        passes: 2,
+    }
+    input: {
+        L1: for (var x = 0; x < 3; x++) {
+            L2: for (var y = 0; y < 2; y++) {
+                break L2;
+            }
+        }
+        console.log(x, y);
+    }
+    expect: {
+        for (var x = 0; x < 3; x++) {
+            var y = 0;
+            y < 2;
+        }
+        console.log(x, y);
+    }
+    expect_stdout: "3 0"
+}
+
+issue_2740_5: {
+    options = {
+        dead_code: true,
+        loops: true,
+        passes: 2,
+    }
+    input: {
+        L1: for (var x = 0; x < 3; x++) {
+            break L1;
+            L2: for (var y = 0; y < 2; y++) {
+                break L2;
+            }
+        }
+        console.log(x, y);
+    }
+    expect: {
+        var x = 0;
+        x < 3;
+        var y;
+        console.log(x,y);
+    }
+    expect_stdout: "0 undefined"
+}
+
+issue_2904: {
+    options = {
+        join_vars: true,
+        loops: true,
+    }
+    input: {
+        var a = 1;
+        do {
+            console.log(a);
+        } while (--a);
+    }
+    expect: {
+        for (var a = 1; console.log(a), --a;);
+    }
+    expect_stdout: "1"
 }

@@ -8,3 +8,19 @@ octal_escape_sequence: {
         var border_check = "\x20\x30\x38\x30\x00\x30\xc0\x30";
     }
 }
+
+issue_1929: {
+    input: {
+        function f(s) {
+            return s.split(/[\\/]/);
+        }
+        console.log(JSON.stringify(f("A/B\\C\\D/E\\F")));
+    }
+    expect: {
+        function f(s) {
+            return s.split(/[\\/]/);
+        }
+        console.log(JSON.stringify(f("A/B\\C\\D/E\\F")));
+    }
+    expect_stdout: '["A","B","C","D","E","F"]'
+}

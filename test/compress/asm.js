@@ -1,25 +1,24 @@
 asm_mixed: {
     options = {
-        sequences     : true,
-        properties    : true,
-        dead_code     : true,
-        drop_debugger : true,
-        conditionals  : true,
-        comparisons   : true,
-        evaluate      : true,
-        booleans      : true,
-        loops         : true,
-        unused        : true,
-        hoist_funs    : true,
-        keep_fargs    : true,
-        keep_fnames   : false,
-        hoist_vars    : true,
-        if_return     : true,
-        join_vars     : true,
-        cascade       : true,
-        side_effects  : true,
-        negate_iife   : true
-    };
+        booleans: true,
+        comparisons: true,
+        conditionals: true,
+        dead_code: true,
+        drop_debugger: true,
+        evaluate: true,
+        hoist_funs: true,
+        hoist_vars: true,
+        if_return: true,
+        join_vars: true,
+        keep_fargs: true,
+        keep_fnames: false,
+        loops: true,
+        negate_iife: true,
+        properties: true,
+        sequences: true,
+        side_effects: true,
+        unused: true,
+    }
     input: {
         // adapted from http://asmjs.org/spec/latest/
         function asm_GeometricMean(stdlib, foreign, buffer) {
@@ -104,3 +103,65 @@ asm_mixed: {
     }
 }
 
+asm_toplevel: {
+    options = {}
+    input: {
+        "use asm";
+        0.0;
+        function f() {
+            0.0;
+            (function(){
+                0.0;
+            });
+        }
+        0.0;
+    }
+    expect_exact: '"use asm";0.0;function f(){0.0;(function(){0.0})}0.0;'
+}
+
+asm_function_expression: {
+    options = {}
+    input: {
+        0.0;
+        var a = function() {
+            "use asm";
+            0.0;
+        }
+        function f() {
+            0.0;
+            return function(){
+                "use asm";
+                0.0;
+            }
+            0.0;
+        }
+        0.0;
+    }
+    expect_exact: '0;var a=function(){"use asm";0.0};function f(){0;return function(){"use asm";0.0};0}0;'
+}
+
+asm_nested_functions: {
+    options = {}
+    input: {
+        0.0;
+        function a() {
+            "use asm";
+            0.0;
+        }
+        0.0;
+        function b() {
+            0.0;
+            function c(){
+                "use asm";
+                0.0;
+            }
+            0.0;
+            function d(){
+                0.0;
+            }
+            0.0;
+        }
+        0.0;
+    }
+    expect_exact: '0;function a(){"use asm";0.0}0;function b(){0;function c(){"use asm";0.0}0;function d(){0}0}0;'
+}

@@ -1,9 +1,9 @@
 wrongly_optimized: {
     options = {
-        conditionals: true,
         booleans: true,
-        evaluate: true
-    };
+        conditionals: true,
+        evaluate: true,
+    }
     input: {
         function func() {
             foo();
@@ -17,6 +17,6 @@ wrongly_optimized: {
             foo();
         }
         // TODO: optimize to `func(), bar()`
-        (func(), 0) || bar();
+        (func(), 1) && bar();
     }
 }

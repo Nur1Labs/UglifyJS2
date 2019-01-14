@@ -1,17 +1,16 @@
 string_plus_optimization: {
     options = {
-        side_effects  : true,
-        evaluate      : true,
-        conditionals  : true,
-        comparisons   : true,
-        dead_code     : true,
-        booleans      : true,
-        unused        : true,
-        if_return     : true,
-        join_vars     : true,
-        cascade       : true,
-        hoist_funs    : true,
-    };
+        booleans: true,
+        comparisons: true,
+        conditionals: true,
+        dead_code: true,
+        evaluate: true,
+        hoist_funs: true,
+        if_return: true,
+        join_vars: true,
+        side_effects: true,
+        unused: true,
+    }
     input: {
         function foo(anything) {
             function throwing_function() {
@@ -35,7 +34,7 @@ string_plus_optimization: {
                 throw "nope";
             }
             try {
-                console.log('0' + throwing_function() ? "yes" : "no");
+                console.log((throwing_function(), "yes"));
             } catch (ex) {
                 console.log(ex);
             }
@@ -46,4 +45,5 @@ string_plus_optimization: {
         }
         foo();
     }
+    expect_stdout: true
 }

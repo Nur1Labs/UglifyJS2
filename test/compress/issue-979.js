@@ -1,8 +1,19 @@
 issue979_reported: {
     options = {
-        sequences:true, properties:true, dead_code:true, conditionals:true,
-        comparisons:true, evaluate:true, booleans:true, loops:true, unused:true, hoist_funs:true,
-        keep_fargs:true, if_return:true, join_vars:true, cascade:true, side_effects:true
+        booleans: true,
+        comparisons: true,
+        conditionals: true,
+        dead_code: true,
+        evaluate: true,
+        hoist_funs: true,
+        if_return: true,
+        join_vars: true,
+        keep_fargs: true,
+        loops: true,
+        properties: true,
+        sequences: true,
+        side_effects: true,
+        unused: true,
     }
     input: {
         function f1() {
@@ -30,9 +41,20 @@ issue979_reported: {
 
 issue979_test_negated_is_best: {
     options = {
-        sequences:true, properties:true, dead_code:true, conditionals:true,
-        comparisons:true, evaluate:true, booleans:true, loops:true, unused:true, hoist_funs:true,
-        keep_fargs:true, if_return:true, join_vars:true, cascade:true, side_effects:true
+        booleans: true,
+        comparisons: true,
+        conditionals: true,
+        dead_code: true,
+        evaluate: true,
+        hoist_funs: true,
+        if_return: true,
+        join_vars: true,
+        keep_fargs: true,
+        loops: true,
+        properties: true,
+        sequences: true,
+        side_effects: true,
+        unused: true,
     }
     input: {
         function f3() {
@@ -82,7 +104,7 @@ issue979_test_negated_is_best: {
             1!=a||2!=b||foo();
         }
         function f7() {
-            return 1!=a&&2!=b?bar():void foo();
+            if(1!=a&&2!=b)return bar();foo()
         }
     }
 }

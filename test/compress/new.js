@@ -36,7 +36,9 @@ new_statements_3: {
 }
 
 new_with_rewritten_true_value: {
-    options = { booleans: true }
+    options = {
+        booleans: true,
+    }
     input: {
         new true;
     }
@@ -81,4 +83,20 @@ new_with_unary_prefix: {
         var bar = (+new Date()).toString(32);
     }
     expect_exact: 'var bar=(+new Date).toString(32);';
+}
+
+dot_parenthesis_1: {
+    input: {
+        console.log(new (Math.random().constructor) instanceof Number);
+    }
+    expect_exact: "console.log(new(Math.random().constructor)instanceof Number);"
+    expect_stdout: "true"
+}
+
+dot_parenthesis_2: {
+    input: {
+        console.log(typeof new function(){Math.random()}.constructor);
+    }
+    expect_exact: "console.log(typeof new function(){Math.random()}.constructor);"
+    expect_stdout: "function"
 }

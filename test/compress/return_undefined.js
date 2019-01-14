@@ -1,25 +1,24 @@
 return_undefined: {
     options = {
-        sequences     : false,
-        if_return     : true,
-        evaluate      : true,
-        dead_code     : true,
-        conditionals  : true,
-        comparisons   : true,
-        booleans      : true,
-        unused        : true,
-        side_effects  : true,
-        properties    : true,
-        drop_debugger : true,
-        loops         : true,
-        hoist_funs    : true,
-        keep_fargs    : true,
-        keep_fnames   : false,
-        hoist_vars    : true,
-        join_vars     : true,
-        cascade       : true,
-        negate_iife   : true
-    };
+        booleans: true,
+        comparisons: true,
+        conditionals: true,
+        dead_code: true,
+        drop_debugger: true,
+        evaluate: true,
+        hoist_funs: true,
+        hoist_vars: true,
+        if_return: true,
+        join_vars: true,
+        keep_fargs: true,
+        keep_fnames: false,
+        loops: true,
+        negate_iife: true,
+        properties: true,
+        sequences: false,
+        side_effects: true,
+        unused: true,
+    }
     input: {
         function f0() {
         }
@@ -119,6 +118,28 @@ return_undefined: {
         }
         function f12() {
             return 0;
+        }
+    }
+}
+
+return_void: {
+    options = {
+        if_return: true,
+        inline: true,
+        reduce_vars: true,
+        unused: true,
+    }
+    input: {
+        function f() {
+            function g() {
+                h();
+            }
+            return g();
+        }
+    }
+    expect: {
+        function f() {
+            h();
         }
     }
 }
